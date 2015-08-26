@@ -1,5 +1,7 @@
 package com.example.eric.mygame;
 
+import android.view.KeyEvent;
+
 import org.andengine.engine.Engine;
 import org.andengine.engine.LimitedFPSEngine;
 import org.andengine.engine.camera.BoundCamera;
@@ -64,5 +66,21 @@ public class MainActivity extends BaseGameActivity {
 
     public static void setMainMenuScene() {
         sceneManager.createMenuScene();
+    }
+
+    public static void setGameScene() {
+        sceneManager.loadGameScene();
+    }
+
+    public static void loadMenuScene() {
+        sceneManager.loadMenuScene();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            sceneManager.getCurrentScene().onBackKeyPressed();
+        }
+        return false;
     }
 }

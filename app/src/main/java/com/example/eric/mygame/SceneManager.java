@@ -1,6 +1,8 @@
 package com.example.eric.mygame;
 
 import org.andengine.engine.Engine;
+import org.andengine.engine.handler.timer.ITimerCallback;
+import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.ui.IGameInterface.OnCreateSceneCallback;
 
 
@@ -23,6 +25,19 @@ public class SceneManager {
     public SceneManager(ResourceManager resourceManager) {
         this.resourceManager = resourceManager;
         this.engine = resourceManager.engine;
+    }
+
+    public void loadMenuScene() {
+        setScene(loadingScene);
+        gameScene.disposeScene();
+        this.resourceManager.engine.registerUpdateHandler(new TimerHandler(0.1f, new ITimerCallback() {
+            @Override
+            public void onTimePassed(TimerHandler pTimerHandler) {
+                engine.registerUpdateHandler(pTimerHandler);
+                resourceManager.loadMenuTextures();
+                setScene(menuScene);
+            }
+        }));
     }
 
     public enum SceneType {
@@ -79,7 +94,22 @@ public class SceneManager {
     public void createMenuScene() {
         this.resourceManager.loadMenuResources();
         this.menuScene = new MainMenuScene(this.resourceManager);
+        this.loadingScene = new LoadingScene(this.resourceManager);
         this.setScene(menuScene);
         this.disposeSplashScene();
+    }
+
+    public void loadGameScene() {
+        setScene(loadingScene);
+        this.resourceManager.unloadMenuTextures();
+        this.resourceManager.engine.registerUpdateHandler(new TimerHandler(0.1f, new ITimerCallback() {
+            @Override
+            public void onTimePassed(TimerHandler pTimerHandler) {
+                engine.unregisterUpdateHandler(pTimerHandler);
+                resourceManager.loadGameResources();
+                gameScene = new GameScene(resourceManager);
+                setScene(gameScene);
+            }
+        }));
     }
 }

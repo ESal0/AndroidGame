@@ -24,4 +24,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile project(':andEngineAC')
     compile project(':andEnginePhysicsBox2DExtension')
+    compile files('lib.jar')
 }

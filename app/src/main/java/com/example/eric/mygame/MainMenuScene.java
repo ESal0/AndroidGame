@@ -8,6 +8,7 @@ import org.andengine.entity.scene.menu.item.IMenuItem;
 import org.andengine.entity.scene.menu.item.SpriteMenuItem;
 import org.andengine.entity.scene.menu.item.decorator.ScaleMenuItemDecorator;
 import org.andengine.entity.sprite.Sprite;
+import org.andengine.entity.text.Text;
 import org.andengine.opengl.util.GLState;
 
 import static com.example.eric.mygame.SceneManager.SceneType;
@@ -63,6 +64,7 @@ public class MainMenuScene extends BaseScene implements MenuScene.IOnMenuItemCli
         quitMenuItem.setPosition(quitMenuItem.getX(), quitMenuItem.getY() - 20);
         Log.d("MainMenuScene", "quitMenuItem X,Y :" + quitMenuItem.getX() + " " + quitMenuItem.getY());
 
+        attachChild(new Text(400, 425, resourceManager.font, "Run n' Jump!", resourceManager.VBOManager));
         menuChildScene.setOnMenuItemClickListener(this);
         setChildScene(menuChildScene);
     }
@@ -91,7 +93,8 @@ public class MainMenuScene extends BaseScene implements MenuScene.IOnMenuItemCli
     public boolean onMenuItemClicked(MenuScene pMenuScene, IMenuItem pMenuItem, float pMenuItemLocalX, float pMenuItemLocalY) {
         switch (pMenuItem.getID()) {
             case MENU_PLAY:
-                return true;
+                MainActivity.setGameScene();
+                break;
             case MENU_OPTIONS:
                 return true;
             case MENU_QUIT:
