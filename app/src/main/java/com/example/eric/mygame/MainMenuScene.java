@@ -46,9 +46,9 @@ public class MainMenuScene extends BaseScene implements MenuScene.IOnMenuItemCli
     private void createMenuScene() {
         this.menuChildScene = new MenuScene(resourceManager.camera);
         this.menuChildScene.setPosition(0, 0);
-        final IMenuItem startMenuItem = new ScaleMenuItemDecorator(new SpriteMenuItem(MENU_PLAY, this.resourceManager.play_region, resourceManager.VBOManager), 0.85f, 1);
-        final IMenuItem optionsMenuItem = new ScaleMenuItemDecorator(new SpriteMenuItem(MENU_OPTIONS, this.resourceManager.options_region, resourceManager.VBOManager), 0.85f, 1);
-        final IMenuItem quitMenuItem = new ScaleMenuItemDecorator(new SpriteMenuItem(MENU_QUIT, this.resourceManager.quit_region, resourceManager.VBOManager), 0.85f, 1);
+        final IMenuItem startMenuItem = new ScaleMenuItemDecorator(new SpriteMenuItem(MENU_PLAY, this.resourceManager.play_region, resourceManager.VBOManager), 0.9f, 1);
+        final IMenuItem optionsMenuItem = new ScaleMenuItemDecorator(new SpriteMenuItem(MENU_OPTIONS, this.resourceManager.options_region, resourceManager.VBOManager), 0.9f, 1);
+        final IMenuItem quitMenuItem = new ScaleMenuItemDecorator(new SpriteMenuItem(MENU_QUIT, this.resourceManager.quit_region, resourceManager.VBOManager), 0.9f, 1);
 
         menuChildScene.addMenuItem(startMenuItem);
         menuChildScene.addMenuItem(optionsMenuItem);
@@ -64,7 +64,7 @@ public class MainMenuScene extends BaseScene implements MenuScene.IOnMenuItemCli
         quitMenuItem.setPosition(quitMenuItem.getX(), quitMenuItem.getY() - 20);
         Log.d("MainMenuScene", "quitMenuItem X,Y :" + quitMenuItem.getX() + " " + quitMenuItem.getY());
 
-        attachChild(new Text(400, 425, resourceManager.font, "Run n' Jump!", resourceManager.VBOManager));
+        attachChild(new Text(400, 420, resourceManager.font, "Run n' Jump!", resourceManager.VBOManager));
         menuChildScene.setOnMenuItemClickListener(this);
         setChildScene(menuChildScene);
     }

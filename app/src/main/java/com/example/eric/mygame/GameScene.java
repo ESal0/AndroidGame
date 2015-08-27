@@ -20,7 +20,7 @@ import org.andengine.entity.modifier.LoopEntityModifier;
 import org.andengine.entity.modifier.ScaleModifier;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
-import org.andengine.entity.scene.background.Background;
+import org.andengine.entity.scene.background.ParallaxBackground;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.text.TextOptions;
@@ -32,7 +32,6 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.DrawType;
 import org.andengine.util.SAXUtils;
 import org.andengine.util.adt.align.HorizontalAlign;
-import org.andengine.util.adt.color.Color;
 import org.andengine.util.level.EntityLoader;
 import org.andengine.util.level.constants.LevelConstants;
 import org.andengine.util.level.simple.SimpleLevelEntityLoaderData;
@@ -59,6 +58,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
     private static final Object TAG_ENTITY_ATTR_TYPE_VALUE_PLATFORM_BROKEN = "platformBroken";
     private static final Object TAG_ENTITY_ATTR_TYPE_VALUE_COIN = "coin";
     private static final Object TAG_ENTITY_ATTR_TYPE_VALUE_PLAYER = "player";
+    private static final Object TAG_ENTITY_ATTR_TYPE_VALUE_FINISH = "finish";
 
 
     private boolean firstTouch = true;
@@ -68,7 +68,10 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
     private Text gameOverText;
     private boolean gameOver = false;
     private int scorePoints = 0;
+    private int scorePerCoin = 250;
+    private int maxScore;
     private PhysicsWorld physicsWorld;
+    private LevelCompleteWindow levelCompleteWindow;
 
     public GameScene(ResourceManager resourceManager) {
         super(resourceManager);
@@ -77,10 +80,12 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
     @Override
     public void createScene() {
         this.setOnSceneTouchListener(this);
+        this.scorePerCoin = 250;
         this.createPhysics();
         this.createBackground();
         this.createHud();
-        createGameOverText();
+        this.createGameOverText();
+        this.levelCompleteWindow = new LevelCompleteWindow(this.resourceManager);
         loadLevel(1);
     }
 
@@ -105,6 +110,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
         this.camera.setHUD(null);
         this.camera.setChaseEntity(null);
         this.camera.setCenter(400, 240);
+        this.physicsWorld.dispose();
+        this.resourceManager.unloadGameTextures();
     }
 
     @Override
@@ -113,7 +120,9 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
     }
 
     public void createBackground() {
-        this.setBackground(new Background(Color.BLUE));
+        ParallaxBackground background = new ParallaxBackground(0, 0, 0);
+        background.attachParallaxEntity(new ParallaxBackground.ParallaxEntity(0, new Sprite(camera.getCenterX(), camera.getCenterY(), resourceManager.background_region, vbom)));
+        this.setBackground(background);
     }
 
     private void createHud() {
@@ -157,11 +166,12 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
                 final int posY = SAXUtils.getIntAttributeOrThrow(pAttributes, TAG_ENTITY_ATTR_Y);
                 final String type = SAXUtils.getAttributeOrThrow(pAttributes, TAG_ENTITY_ATTR_TYPE);
 
-                Sprite levelObject = null;
+                Sprite levelObject;
 
                 if (type.equals(TAG_ENTITY_ATTR_TYPE_VALUE_PLATFORM_STANDARD)) {
-                    levelObject = new Sprite(posX, posY, resourceManager.platform_region, vbom);
-                    PhysicsFactory.createBoxBody(physicsWorld, levelObject, BodyDef.BodyType.StaticBody, fixtureDef).setUserData("platformStandard");
+                    PlatformStandard platform = new PlatformStandard(posX, posY, resourceManager);
+                    platform.createBody(physicsWorld, fixtureDef);
+                    levelObject = platform;
                 } else if (type.equals(TAG_ENTITY_ATTR_TYPE_VALUE_PLATFORM_MOVING)) {
                     levelObject = new Sprite(posX, posY, resourceManager.platformMoving_region, vbom);
                     final Body body = PhysicsFactory.createBoxBody(physicsWorld, levelObject, BodyDef.BodyType.StaticBody, fixtureDef);
@@ -174,12 +184,13 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
                     physicsWorld.registerPhysicsConnector(new PhysicsConnector(levelObject, body, true, false));
 
                 } else if (type.equals(TAG_ENTITY_ATTR_TYPE_VALUE_COIN)) {
+                    increaseMaxScore();
                     levelObject = new Sprite(posX, posY, resourceManager.coin_region, vbom) {
                         @Override
                         protected void onManagedUpdate(float pSecondsElapsed) {
                             super.onManagedUpdate(pSecondsElapsed);
                             if (player.collidesWith(this)) {
-                                addScore(250);
+                                addScore(scorePerCoin);
                                 this.setVisible(false);
                                 this.setIgnoreUpdate(true);
                             }
@@ -198,6 +209,23 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
                     };
                     player.setUserData("player");
                     levelObject = player;
+                } else if (type.equals(TAG_ENTITY_ATTR_TYPE_VALUE_FINISH)) {
+                    levelObject = new Sprite(posX, posY, resourceManager.platformFinish_region, vbom) {
+                        @Override
+                        protected void onManagedUpdate(float pSecondsElapsed) {
+                            super.onManagedUpdate(pSecondsElapsed);
+                            if (player.collidesWith(this)) {
+
+                                player.stopRunning();
+                                this.setIgnoreUpdate(true);
+                                levelCompleteWindow.calculateScore(scorePoints, maxScore, GameScene.this);
+                            }
+                        }
+                    };
+                    final Body body = PhysicsFactory.createBoxBody(physicsWorld, levelObject, BodyDef.BodyType.StaticBody, fixtureDef);
+                    body.setUserData("finish");
+                    levelObject.registerEntityModifier(new LoopEntityModifier(new ScaleModifier(2f, 1, 1.3f)));
+                    physicsWorld.registerPhysicsConnector(new PhysicsConnector(levelObject, body));
                 } else {
                     throw new IllegalArgumentException();
                 }
@@ -244,7 +272,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 
                 if (userDataFix1 != null && userDataFix2 != null) {
-                    Log.d("GameScene", " fix1 userData = " + fixture1.getBody().getUserData() + "::::  fix2 userData = " + fixture2.getBody().getUserData());
+                    Log.d("GameScene", "BEGIN CONTACT  fix1 userData = " + fixture1.getBody().getUserData() + " --- fix2 userData = " + fixture2.getBody().getUserData());
 
                     if (userDataFix1.equals("player") || userDataFix2.equals("player")) {
                         player.increaseContactCounter();
@@ -289,7 +317,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
                 Object userDataFix2 = fixture2.getBody().getUserData();
 
                 if (userDataFix1 != null && userDataFix2 != null) {
-                    Log.d("GameScene", " fix1 userData = " + fixture1.getBody().getUserData() + "::::  fix2 userData = " + fixture2.getBody().getUserData());
+                    Log.d("GameScene", " END CONTACT  fix1 userData = " + fixture1.getBody().getUserData() + " --- fix2 userData = " + fixture2.getBody().getUserData());
                     if (userDataFix1.equals("player") || userDataFix2.equals("player")) {
                         player.decreaseContactCounter();
                     }
@@ -308,5 +336,10 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
         };
 
         return contactListener;
+    }
+
+    private void increaseMaxScore() {
+        maxScore += scorePerCoin;
+        Log.d("GameScene", "MaxScore: " + maxScore + " added " + scorePerCoin);
     }
 }

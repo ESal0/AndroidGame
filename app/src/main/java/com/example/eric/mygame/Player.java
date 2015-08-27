@@ -46,7 +46,7 @@ public abstract class Player extends AnimatedSprite {
                 }
 
                 if (canRun) {
-                    body.setLinearVelocity(new Vector2(5, body.getLinearVelocity().y));
+                    body.setLinearVelocity(new Vector2(5.5f, body.getLinearVelocity().y));
                 }
             }
         });
@@ -55,6 +55,12 @@ public abstract class Player extends AnimatedSprite {
     public void setRunning() {
         this.canRun = true;
         this.animate(PLAYER_ANIMATE, 0, 2, true);
+    }
+
+    public void stopRunning() {
+        this.canRun = false;
+        body.setLinearVelocity(new Vector2(0, 0));
+        this.stopAnimation();
     }
 
     public void jump() {

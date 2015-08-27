@@ -7,9 +7,6 @@ import org.andengine.ui.IGameInterface.OnCreateSceneCallback;
 
 
 /**
- * @author Mateusz Mysliwiec
- * @author www.matim-dev.com
- * @version 1.0
  */
 public class SceneManager {
     private BaseScene splashScene;
@@ -29,11 +26,11 @@ public class SceneManager {
 
     public void loadMenuScene() {
         setScene(loadingScene);
-        gameScene.disposeScene();
         this.resourceManager.engine.registerUpdateHandler(new TimerHandler(0.1f, new ITimerCallback() {
             @Override
             public void onTimePassed(TimerHandler pTimerHandler) {
                 engine.registerUpdateHandler(pTimerHandler);
+                gameScene.disposeScene();
                 resourceManager.loadMenuTextures();
                 setScene(menuScene);
             }

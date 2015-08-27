@@ -2,6 +2,7 @@ package com.example.eric.mygame;
 
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.text.Text;
+import org.andengine.util.adt.color.Color;
 
 import static com.example.eric.mygame.SceneManager.SceneType;
 
@@ -15,8 +16,8 @@ public class LoadingScene extends BaseScene {
 
     @Override
     public void createScene() {
-        setBackground(new Background(0f, 0f, 10f));
-        attachChild(new Text(100, 430, resourceManager.font, "loading....", resourceManager.VBOManager));
+        setBackground(new Background(Color.BLACK));
+        attachChild(new Text(100, 440, resourceManager.font, "loading....", resourceManager.VBOManager));
     }
 
     @Override

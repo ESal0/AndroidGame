@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<level width="2800" height="780">
+    <!--PLAYER -->
+    <entity x="50" y="300" type="player" />
+
+    <!--PLATFORMS -->
+    <entity x="50" y="100" type="platformStandard" />
+    <entity x="620" y="20" type="platformStandard" />
+    <entity x="300" y="200" type="platformMoving" />
+    <entity x="500" y="300" type="platformBroken" />
+    <entity x="820" y="120" type="platformStandard" />
+    <entity x="1000" y="190" type="platformStandard" />
+
+    <!-- COINS -->
+    <entity x="300" y="230" type="coin" />
+    <entity x="500" y="330" type="coin" />
+    <entity x="1000" y="230" type="coin" />
+
+    <!-- FINISH -->
+    <entity x="1200" y="1" type="finish" />
+</level>

@@ -40,6 +40,12 @@ public class ResourceManager {
     public ITextureRegion platform_region;
     public ITextureRegion platformMoving_region;
     public ITextureRegion platformBrittle_region;
+    public ITextureRegion complete_window_region;
+    public ITextureRegion platformFinish_region;
+    public ITextureRegion retry_region;
+    public ITextureRegion menu_region;
+    public ITextureRegion background_region;
+    public ITiledTextureRegion rating_region;
     public ITiledTextureRegion player_region;
 
     public Font font;
@@ -91,6 +97,13 @@ public class ResourceManager {
         this.platformMoving_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, this.gameActivity, "platformMoving.png");
         this.platformBrittle_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, this.gameActivity, "platformMovingBrittle.png");
         this.player_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, this.gameActivity, "playerSample.png", 3, 1);
+        this.rating_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, this.gameActivity, "stars.png", 2, 1);
+        this.complete_window_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, this.gameActivity, "levelComplete.png");
+        this.retry_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, this.gameActivity, "buttonretry.png");
+        this.menu_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, this.gameActivity, "buttonmenu.png");
+        this.platformFinish_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, this.gameActivity, "finish.png");
+        this.background_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, this.gameActivity, "background.png");
+
         try {
             this.gameTextureAtlas.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 0));
             this.gameTextureAtlas.load();
@@ -133,11 +146,11 @@ public class ResourceManager {
     }
 
     public void loadGameTextures() {
-
+        this.gameTextureAtlas.load();
     }
 
     public void unloadGameTextures() {
-
+        this.gameTextureAtlas.unload();
     }
 
     public void loadGameScene() {
